@@ -7,15 +7,23 @@ import glob
 import os
 import sys
 
+temp_filelist_filename = '__img_to_pdf_filelist.txt'
+temp_label_filename = '__img_to_pdf_label.jpg'
+
 def make_label_jpg(label, filename):
-    cmd = 'magick -background white -fill black -size 600x800 -gravity Center -font D2Coding label:"[{}]" "{}"'.format(label, filename)
+    cmd = 'magick -background white -fill black -size 600x800 -quality 100 -gravity Center -font D2Coding label:"[{}]" "{}"'.format(label, filename)
     print(cmd)
     os.system(cmd)
 
 
 def make_pdf_from_filenamelist(filename_list, output_filename):
     quoted_filenames = ['"' + filename + '"' for filename in filename_list]
-    cmd = 'magick {} "{}.pdf"'.format(" ".join(quoted_filenames), output_filename)
+    f = open(temp_filelist_filename, 'w', encoding='utf-8')
+    for filename in quoted_filenames:
+        print(filename, file=f)
+    f.close()
+
+    cmd = 'magick @{} "{}.pdf"'.format(temp_filelist_filename, output_filename)
     print(cmd)
     os.system(cmd)
 
@@ -65,9 +73,8 @@ def main(directory, output_filename, limit_size_mb):
         if len(filenamelist_of_list) == 1:
             filename = "{}".format(output_filename)
 
-        label_filename = "label.jpg"
-        make_label_jpg(filename, label_filename)
-        make_pdf_from_filenamelist([label_filename] + filenamelist_of_list[i], filename)
+        make_label_jpg(filename, temp_label_filename)
+        make_pdf_from_filenamelist([temp_label_filename] + filenamelist_of_list[i], filename)
 
 
 if __name__ == "__main__":
