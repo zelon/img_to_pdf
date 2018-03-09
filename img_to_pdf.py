@@ -57,9 +57,6 @@ def enumerate_by_total_size(filenames, limit_size_mb):
 
 
 def main(directory, output_filename, limit_size_mb):
-    if not os.path.exists(directory):
-        print("Cannot find directory:{}".format(directory))
-        sys.exit(1)
     filenames = filter_filename(glob.glob(os.path.join(directory, "*.*")))
 
     filenamelist_of_list = enumerate_by_total_size(filenames, limit_size_mb)
@@ -82,9 +79,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     directory = args.directory
-    output_filename = directory
+    if not os.path.exists(directory):
+        print("Cannot find directory:{}".format(directory))
+        sys.exit(1)
+    output_filename = os.path.basename(os.path.abspath(directory))
     if len(args.output) > 0:
         output_filename = args.output
     limit_size_mb = args.limit_size_mb
+
+    print('Directory: {}'.format(directory))
+    print('OutputFilename: {}.pdf'.format(output_filename))
+    print('LimitSizeMB: {}'.format(limit_size_mb))
 
     main(directory, output_filename, limit_size_mb)
